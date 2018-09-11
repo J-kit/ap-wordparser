@@ -2,17 +2,18 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace AP.WordParser.Lib
 {
     public class SegmentAnalyzer
     {
-        public IEnumerable<SegmentAnalyzerResult> Analyze(StreamSegmentParser parser)
+        public IEnumerable<SegmentAnalyzerResult> Analyze(StreamSegmentParser parser, CancellationToken token = default)
         {
-            return Analyze(parser.ReadSegments());
+            return Analyze(parser.ReadSegments(token), token);
         }
 
-        public IEnumerable<SegmentAnalyzerResult> Analyze(IEnumerable<string> segments)
+        public IEnumerable<SegmentAnalyzerResult> Analyze(IEnumerable<string> segments, CancellationToken token = default)
         {
             var analysisDictionary = new Dictionary<string, IntWrapper>();
             foreach (var segment in segments)
@@ -24,6 +25,11 @@ namespace AP.WordParser.Lib
                 else
                 {
                     analysisDictionary[segment] = 1;
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    return null;
                 }
             }
             return analysisDictionary.OrderByDescending(x => x.Value.Value).Select(x => new SegmentAnalyzerResult(x.Key, x.Value));

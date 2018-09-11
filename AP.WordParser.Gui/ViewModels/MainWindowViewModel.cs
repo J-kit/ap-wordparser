@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -32,10 +33,20 @@ namespace AP.WordParser.Gui.ViewModels
 
         private ICommand _expandCommand;
         private ICommand _fileLoadCommand;
+        private bool _fileLoading;
+        private ICommand _cancelFileLoadingCommand;
 
-        public ICommand FileLoadCommand => _fileLoadCommand ?? (_fileLoadCommand = new RelayCommand(x => LoadFile()));
+        public ICommand FileLoadCommand => _fileLoadCommand ?? (_fileLoadCommand = new RelayCommand(
+                                               x => LoadFile(),
+                                               x => !FileLoading
+                                               ));
 
         public ICommand ExpandCommand => _expandCommand ?? (_expandCommand = new RelayCommand(x => ExpandFile(x)));
+
+        public ICommand CancelFileLoadingCommand => _cancelFileLoadingCommand ?? (_cancelFileLoadingCommand = new RelayCommand(
+                                                        x => _cancellationTokenSource.Cancel(),
+                                                        x => FileLoading
+                                                    ));
 
         private void ExpandFile(object o)
         {
@@ -107,6 +118,24 @@ namespace AP.WordParser.Gui.ViewModels
             }
         }
 
+        public bool FileLoading
+        {
+            get => _fileLoading;
+            private set
+            {
+                if (value == _fileLoading)
+                {
+                    return;
+                }
+
+                _fileLoading = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FileLoadCommand));
+            }
+        }
+
+        private CancellationTokenSource _cancellationTokenSource;
+
         private async void LoadFile()
         {
             var stream = _fileReadOpenService.OpenFile();
@@ -115,7 +144,8 @@ namespace AP.WordParser.Gui.ViewModels
                 _messagingService.Message($"Invalid file selected");
                 return;
             }
-
+            _cancellationTokenSource = new CancellationTokenSource();
+            FileLoading = true;
             await Task.Run(() =>
             {
                 using (stream)
@@ -123,11 +153,19 @@ namespace AP.WordParser.Gui.ViewModels
                 using (var analyser = new StreamSegmentAnalyser(parser))
                 {
                     SegmentParserStatus = parser.StatusObject;
-                    SegmentAnalyzerResults = analyser.Analyze().ToList();
+                    SegmentAnalyzerResults = analyser.Analyze(_cancellationTokenSource.Token)?.ToList();
                 }
             });
+            FileLoading = false;
 
-            _messagingService.Message($"File successfully parsed. {SegmentAnalyzerResults.Count} results");
+            if (_cancellationTokenSource?.Token.IsCancellationRequested ?? false)
+            {
+                _messagingService.Message($"Successfully canceled parsing");
+            }
+            else
+            {
+                _messagingService.Message($"File successfully parsed. {SegmentAnalyzerResults.Count} results");
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

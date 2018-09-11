@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace AP.WordParser.Lib.IO
 {
@@ -42,7 +43,7 @@ namespace AP.WordParser.Lib.IO
             };
         }
 
-        public IEnumerable<string> ReadSegments()
+        public IEnumerable<string> ReadSegments(CancellationToken token = default)
         {
             var readCount = 0;
             var buffer = new char[_cacheSize];
@@ -74,6 +75,11 @@ namespace AP.WordParser.Lib.IO
                 if (StatusObject != null)
                 {
                     StatusObject.CurrentPosition = _binaryReader.BaseStream.Position;
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    yield break;
                 }
             }
 

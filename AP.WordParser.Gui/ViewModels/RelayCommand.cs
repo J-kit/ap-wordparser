@@ -5,63 +5,35 @@ namespace AP.WordParser.Gui.ViewModels
 {
     public class RelayCommand : ICommand
     {
-        private Action<object> execute;
+        private Action<object> _execute;
 
-        private Predicate<object> canExecute;
-
-        private event EventHandler CanExecuteChangedInternal;
+        private Predicate<object> _canExecute;
 
         public RelayCommand(Action<object> execute)
-            : this(execute, DefaultCanExecute)
+            : this(execute, x => true)
         {
         }
 
         public RelayCommand(Action<object> execute, Predicate<object> canExecute)
         {
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            this.canExecute = canExecute ?? throw new ArgumentNullException(nameof(canExecute));
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute ?? throw new ArgumentNullException(nameof(canExecute));
         }
 
         public event EventHandler CanExecuteChanged
         {
-            add
-            {
-                CommandManager.RequerySuggested += value;
-                CanExecuteChangedInternal += value;
-            }
-
-            remove
-            {
-                CommandManager.RequerySuggested -= value;
-                CanExecuteChangedInternal -= value;
-            }
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
 
         public bool CanExecute(object parameter)
         {
-            return canExecute != null && canExecute(parameter);
+            return _canExecute?.Invoke(parameter) ?? false;
         }
 
         public void Execute(object parameter)
         {
-            execute(parameter);
-        }
-
-        public void OnCanExecuteChanged()
-        {
-            EventHandler handler = CanExecuteChangedInternal;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void Destroy()
-        {
-            canExecute = _ => false;
-            execute = _ => { return; };
-        }
-
-        private static bool DefaultCanExecute(object parameter)
-        {
-            return true;
+            _execute(parameter);
         }
     }
 }

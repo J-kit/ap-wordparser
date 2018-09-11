@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace AP.WordParser.Lib.IO
 {
@@ -19,9 +20,9 @@ namespace AP.WordParser.Lib.IO
         {
         }
 
-        public IEnumerable<SegmentAnalyzerResult> Analyze()
+        public IEnumerable<SegmentAnalyzerResult> Analyze(CancellationToken token = default)
         {
-            return Analyze(_parser);
+            return base.Analyze(_parser, token);
         }
 
         public void Dispose()
