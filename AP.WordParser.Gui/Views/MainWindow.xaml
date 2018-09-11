@@ -1,0 +1,77 @@
+﻿<Window x:Class="AP.WordParser.Gui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AP.WordParser.Gui"
+        xmlns:viewModels="clr-namespace:AP.WordParser.Gui.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450.667" Width="768"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel, IsDesignTimeCreatable=False}">
+
+    <Window.DataContext>
+        <viewModels:MainWindowViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File"
+                      VerticalAlignment="Center"
+                      Height="25">
+
+                <MenuItem Header="_Open"
+                          Command="{Binding FileLoadCommand, Mode=OneWay}" />
+
+                <Separator />
+
+                <MenuItem Header="_Expand File">
+                    <MenuItem Header="To 30 MB"
+                              Command="{Binding ExpandCommand, Mode=OneWay}"
+                              CommandParameter="30" />
+
+                    <MenuItem Header="To 100 MB"
+                              Command="{Binding ExpandCommand, Mode=OneWay}"
+                              CommandParameter="100" />
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding SegmentAnalyzerResults, Mode=OneWay}"
+                  IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  EnableColumnVirtualization="True">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Segment"
+                                    Binding="{Binding Segment, Mode=OneWay}" />
+
+                <DataGridTextColumn Header="Occurances"
+                                    Binding="{Binding Occurance, Mode=OneWay}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="2" Height="30">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="1"
+                   Content="{Binding SegmentParserStatus.ParseProgress,StringFormat={}%, Mode=OneWay}"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center" />
+
+            <ProgressBar Grid.Column="2"
+                Value="{Binding SegmentParserStatus.ParseProgress, Mode=OneWay}" />
+        </Grid>
+    </Grid>
+</Window>
