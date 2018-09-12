@@ -32,7 +32,7 @@ namespace AP.WordParser.Lib.IO
         }
 
         /// <summary>
-        ///
+        /// Analyzes the parsed results from the decoded stream. Returns an ordered collection of stringsegment and occurance count.
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>

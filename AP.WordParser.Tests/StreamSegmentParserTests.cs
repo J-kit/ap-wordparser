@@ -2,6 +2,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,15 +10,15 @@ using System.Text;
 namespace AP.WordParser.Tests
 {
     [TestClass]
-    public class StreamSegmentAnalyserTest
+    public class StreamSegmentParserTests
     {
         [TestMethod]
-        public void TestStreamSegmentAnalyser()
+        public void TestSegmentParser()
         {
             using (var fs = GetStream())
-            using (var parser = new StreamSegmentParser(fs).SetDelimiter(',').SetCacheSize(64))
-            using (var analyser = new StreamSegmentAnalyser(parser))
+            using (var parser = new StreamSegmentParser(fs))
             {
+                parser.Delimiter = new List<char> { ',' };
                 var segments = parser.ReadSegments().ToList();
                 var seqEqual = segments.SequenceEqual("abcdef".ToCharArray().Select(x => x.ToString()));
                 Assert.IsTrue(seqEqual);

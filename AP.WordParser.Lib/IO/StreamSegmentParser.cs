@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -128,6 +129,23 @@ namespace AP.WordParser.Lib.IO
             where T : IStreamSegmentParserStatus, new()
         {
             StatusObject = new T();
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the delimiter which is used to parse the decoded stream
+        /// </summary>
+        /// <param name="delimiter"></param>
+        /// <returns></returns>
+        public StreamSegmentParser SetDelimiter(params char[] delimiter)
+        {
+            Delimiter = delimiter.ToList();
+            return this;
+        }
+
+        public StreamSegmentParser SetCacheSize(int size)
+        {
+            CacheSize = size;
             return this;
         }
 
