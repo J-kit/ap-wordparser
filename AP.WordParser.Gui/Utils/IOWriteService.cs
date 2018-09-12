@@ -4,8 +4,15 @@ using System.IO;
 
 namespace AP.WordParser.Gui.Utils
 {
-    public class IOWriteService : IOService
+    /// <summary>
+    /// Responsible for opening writable streams on the OS
+    /// </summary>
+    public class IOWriteService : IIOService
     {
+        /// <summary>
+        /// Opens a writable stream on the OS
+        /// </summary>
+        /// <returns></returns>
         public Stream OpenFile()
         {
             var dialog = new SaveFileDialog

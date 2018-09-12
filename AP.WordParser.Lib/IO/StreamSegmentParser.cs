@@ -1,22 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Threading;
 
 namespace AP.WordParser.Lib.IO
 {
+    /// <summary>
+    /// Reads a stream as string and returns segments wich are delimited by a <see cref="Delimiter"/>
+    /// </summary>
     public class StreamSegmentParser : IDisposable
     {
         private BinaryReader _binaryReader;
         private int _cacheSize = 8 * 1024;
+
+        /// <summary>
+        /// A set of chars the decoded stream is split by
+        /// </summary>
         public List<char> Delimiter { get; set; }
 
         /// <summary>
         /// If set, this status will be updated when the parsing process progresses
         /// </summary>
-        public StreamSegmentParserStatus StatusObject { get; set; }
+        public IStreamSegmentParserStatus StatusObject { get; set; }
 
+        /// <summary>
+        /// The size of the cache used to parse the stream
+        /// </summary>
         public int CacheSize
         {
             get => _cacheSize;
@@ -30,6 +41,11 @@ namespace AP.WordParser.Lib.IO
             }
         }
 
+        /// <summary>
+        /// Reads a stream as string and returns segments wich are delimited by a <see cref="Delimiter"/>
+        /// </summary>
+        /// <param name="stream">The base stream which is read from</param>
+        /// <param name="encoding">The used encoding to decode the stream</param>
         public StreamSegmentParser(Stream stream, Encoding encoding = default)
         {
             encoding = encoding ?? Encoding.UTF8;
@@ -43,6 +59,11 @@ namespace AP.WordParser.Lib.IO
             };
         }
 
+        /// <summary>
+        /// Returns a query that returns string segments which are delimited by the <see cref="Delimiter"/>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public IEnumerable<string> ReadSegments(CancellationToken token = default)
         {
             var readCount = 0;
@@ -89,12 +110,30 @@ namespace AP.WordParser.Lib.IO
             }
         }
 
+        /// <summary>
+        /// Enables status updates by creating a <see cref="StreamSegmentParserStatus"/>
+        /// object which implements <see cref="INotifyPropertyChanged"/>
+        /// </summary>
+        /// <returns></returns>
         public StreamSegmentParser EnableStatusUpdates()
         {
-            StatusObject = new StreamSegmentParserStatus();
+            return EnableStatusUpdates<StreamSegmentParserStatus>();
+        }
+
+        /// <summary>
+        /// Enables status updates by creating a status object
+        /// </summary>
+        /// <returns></returns>
+        public StreamSegmentParser EnableStatusUpdates<T>()
+            where T : IStreamSegmentParserStatus, new()
+        {
+            StatusObject = new T();
             return this;
         }
 
+        /// <summary>
+        /// Disposes the base stream
+        /// </summary>
         public void Dispose()
         {
             _binaryReader?.Dispose();

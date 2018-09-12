@@ -31,6 +31,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>7.2</LangVersion>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\Release\AP.WordParser.Lib.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -43,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\IStreamSegmentParserStatus.cs" />
     <Compile Include="IO\StreamSegmentParserStatusChangeArgs.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SegmentAnalyzer.cs" />

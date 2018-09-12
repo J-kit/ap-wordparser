@@ -71,8 +71,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Column="1"
-                   Content="{Binding SegmentParserStatus.ParseProgress,StringFormat={}%, Mode=OneWay}"
+            <TextBlock Grid.Column="1"
+                   Text="{Binding SegmentParserStatus.ParseProgress, StringFormat='\{0\} %', Mode=OneWay}"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center" />
 

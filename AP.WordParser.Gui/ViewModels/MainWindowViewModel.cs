@@ -1,4 +1,4 @@
-﻿using AP.WordParser.Gui.Annotations;
+﻿using AP.WordParser.Gui.Properties;
 using AP.WordParser.Gui.Utils;
 using AP.WordParser.Lib;
 using AP.WordParser.Lib.IO;
@@ -13,8 +13,14 @@ using System.Windows.Input;
 
 namespace AP.WordParser.Gui.ViewModels
 {
+    /// <summary>
+    /// Viewmodel of the main window
+    /// </summary>
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        ///
+        /// </summary>
         public MainWindowViewModel()
         {
             // In use-case we'd take some kind of dependency injection but this would take to much time
@@ -24,11 +30,11 @@ namespace AP.WordParser.Gui.ViewModels
             _messagingService = new UserMessagingService();
         }
 
-        private IOService _fileWriteService;
-        private IOService _fileReadOpenService;
+        private IIOService _fileWriteService;
+        private IIOService _fileReadOpenService;
         private IUserMessagingService _messagingService;
 
-        private StreamSegmentParserStatus _segmentParserStatus;
+        private IStreamSegmentParserStatus _segmentParserStatus;
         private ICollection<SegmentAnalyzerResult> _segmentAnalyzerResults;
 
         private ICommand _expandCommand;
@@ -36,17 +42,26 @@ namespace AP.WordParser.Gui.ViewModels
         private bool _fileLoading;
         private ICommand _cancelFileLoadingCommand;
 
+        /// <summary>
+        /// Loads and analyzes a File
+        /// </summary>
         public ICommand FileLoadCommand => _fileLoadCommand ?? (_fileLoadCommand = new RelayCommand(
                                                x => LoadFile(),
                                                x => !FileLoading
                                                ));
 
-        public ICommand ExpandCommand => _expandCommand ?? (_expandCommand = new RelayCommand(x => ExpandFile(x)));
-
+        /// <summary>
+        /// Cancels an ongoing analyzing progress
+        /// </summary>
         public ICommand CancelFileLoadingCommand => _cancelFileLoadingCommand ?? (_cancelFileLoadingCommand = new RelayCommand(
                                                         x => _cancellationTokenSource.Cancel(),
                                                         x => FileLoading
                                                     ));
+
+        /// <summary>
+        /// Expands a file to a given size in MB
+        /// </summary>
+        public ICommand ExpandCommand => _expandCommand ?? (_expandCommand = new RelayCommand(x => ExpandFile(x)));
 
         private void ExpandFile(object o)
         {
@@ -88,6 +103,9 @@ namespace AP.WordParser.Gui.ViewModels
             _messagingService.Message($"Successfully expanded file to {param} MB");
         }
 
+        /// <summary>
+        /// Contains a set of analystic results
+        /// </summary>
         public ICollection<SegmentAnalyzerResult> SegmentAnalyzerResults
         {
             get => _segmentAnalyzerResults;
@@ -103,7 +121,10 @@ namespace AP.WordParser.Gui.ViewModels
             }
         }
 
-        public StreamSegmentParserStatus SegmentParserStatus
+        /// <summary>
+        /// Contains the current analysing status
+        /// </summary>
+        public IStreamSegmentParserStatus SegmentParserStatus
         {
             get => _segmentParserStatus;
             set
@@ -118,6 +139,9 @@ namespace AP.WordParser.Gui.ViewModels
             }
         }
 
+        /// <summary>
+        /// Indicates wether a file analystics process is ongoing
+        /// </summary>
         public bool FileLoading
         {
             get => _fileLoading;
@@ -168,8 +192,15 @@ namespace AP.WordParser.Gui.ViewModels
             }
         }
 
+        /// <summary>
+        ///
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="propertyName"></param>
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
